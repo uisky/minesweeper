@@ -11,9 +11,19 @@ export default class Game {
         this.cntBombs = cntBombs;
         this.field = Array();
         this.state = 'start';
-        this.cntMoves = 0;
+        this._cntMoves = 0;
         this.gameStart = undefined;
         this.gameDur = 0;
+    }
+
+    set cntMoves(val) {
+        console.log('set cntMoves(%d)', val);
+        this._cntMoves = val;
+        this.elCntMoves.innerText = String(this.cntMoves);
+    }
+
+    get cntMoves() {
+        return this._cntMoves;
     }
 
     start() {
@@ -74,6 +84,11 @@ export default class Game {
 
     render() {
         console.log('Game.render()');
+        this.renderField(document.body);
+        this.renderInfo(document.body);
+    }
+
+    renderField(parent) {
         this.elField = document.createElement('div');
         this.elField.classList.add('field');
 
@@ -89,7 +104,15 @@ export default class Game {
             this.elField.append(elRow);
         }
 
-        document.body.append(this.elField);
+        parent.append(this.elField);
+    }
+
+    renderInfo(parent) {
+        this.elCntMoves = document.createElement('div');
+        this.elCntMoves.className = 'counter counter-moves';
+        this.elCntMoves.innerText = String(this.cntMoves);
+
+        parent.append(this.elCntMoves);
     }
 
     cellClick(e) {
@@ -101,9 +124,11 @@ export default class Game {
             this.putBombs(x, y);
             this.state = 'playing';
             cell.open();
+            this.cntMoves++;
         } else if (this.state === 'playing') {
             // Кликнули на закрытую ячейку
             if (cell.state === 'closed') {
+                this.cntMoves++;
                 if (cell.hasBomb) {
                     // Попали на бомбу, проиграли
                     cell.state = 'exploded'
