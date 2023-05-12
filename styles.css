@@ -63,6 +63,7 @@
 }
 .cell.flagged:after {
     content: "F";
+    color: red;
 }
 
 .cell.exploded {

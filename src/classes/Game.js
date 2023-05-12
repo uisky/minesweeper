@@ -28,7 +28,7 @@ export default class Game {
         for (let x = 0; x < this.W; x++) {
             this.field[x] = Array();
             for (let y = 0; y < this.H; y++) {
-                this.field[x][y] = new Cell(x, y);
+                this.field[x][y] = new Cell(this, x, y);
             }
         }
         console.log('FIELD: ', this.field);
@@ -94,8 +94,7 @@ export default class Game {
         if (this.state === 'start') {
             this.putBombs(x, y);
             this.state = 'playing';
-            cell.state = 'open';
-            cell.setClass();
+            cell.open();
         } else if (this.state === 'playing') {
             // Кликнули на закрытую ячейку
             if (cell.state === 'closed') {
@@ -104,7 +103,7 @@ export default class Game {
                     cell.state = 'exploded'
                 } else {
                     // Открываем
-                    cell.state = 'open';
+                    cell.open();
                 }
                 cell.setClass();
             }
