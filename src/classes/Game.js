@@ -20,7 +20,6 @@ export default class Game {
         console.log('Game.start()');
         this.initField();
         this.render();
-        this.putBombs();
     }
 
     initField() {
@@ -32,7 +31,7 @@ export default class Game {
                 this.field[x][y] = new Cell(x, y);
             }
         }
-        console.log(this.field);
+        console.log('FIELD: ', this.field);
     }
 
     check(x, y) {
@@ -40,14 +39,15 @@ export default class Game {
         else return this.field[x][y].hasBomb ? 1 : 0;
     }
 
-    putBombs() {
+    putBombs(exceptX, exceptY) {
+        console.log('Game.putBombs(%d, %d)', exceptX, exceptY);
         // Ставим бомбы
         let fuze = 1000;
         let cnt = this.cntBombs;
         while(cnt && fuze--) {
             let x = Math.floor(Math.random() * this.W);
             let y = Math.floor(Math.random() * this.H);
-            if (!this.field[x][y].hasBomb) {
+            if (!this.field[x][y].hasBomb && x !== exceptX && y !== exceptY) {
                 this.field[x][y].hasBomb = true;
                 cnt--;
             }
@@ -63,7 +63,7 @@ export default class Game {
             }
         }
         
-        console.log(this.field);
+        console.log('FIELD w/bombs: ', this.field);
     }
 
     render() {
@@ -87,28 +87,35 @@ export default class Game {
     }
 
     cellClick(e) {
-        console.log('cellClick', this, e);
         let x = e.target.dataset.x, y = e.target.dataset.y, cell = this.field[x][y];
-        console.log('CELL: ', cell);
+        console.log('CELL CLICK: ', cell);
 
-        // Кликнули на закрытую ячейку
-        if (cell.state === 'closed') {
-            if (cell.hasBomb) {
-                // Попали на бомбу, проиграли
-                cell.state = 'exploded'
-            } else {
-                // Открываем
-                cell.state = 'open';
-            }
+        // Если игра только началась, то расставляем бомбы
+        if (this.state === 'start') {
+            this.putBombs(x, y);
+            this.state = 'playing';
+            cell.state = 'open';
             cell.setClass();
+        } else if (this.state === 'playing') {
+            // Кликнули на закрытую ячейку
+            if (cell.state === 'closed') {
+                if (cell.hasBomb) {
+                    // Попали на бомбу, проиграли
+                    cell.state = 'exploded'
+                } else {
+                    // Открываем
+                    cell.state = 'open';
+                }
+                cell.setClass();
+            }
         }
+
     }
 
     cellRightClick(e) {
         e.preventDefault();
-        console.log('cellRightClick', this, e);
         let x = e.target.dataset.x, y = e.target.dataset.y, cell = this.field[x][y];
-        console.log('CELL: ', cell);
+        console.log('CELL CLICK: ', cell);
         if (cell.state === 'closed') {
             cell.state = 'flagged';
         } else if (cell.state == 'flagged') {
