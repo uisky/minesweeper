@@ -1,0 +1,71 @@
+.field {
+    width: 260px;
+    height: 260px;
+    border: 5px solid #039;
+    margin: 20px auto;
+}
+
+.row {
+    display: flex;
+}
+
+.cell {
+    width: 24px;
+    height: 24px;
+    border: 1px solid gray;
+
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 23px;
+}
+
+.cell.closed {
+    background-color: #eee;
+    border: 3px outset #aaa;
+    width: 20px;
+    height: 20px;
+}
+
+.cell.open {
+}
+
+.cell.open-1:after {
+    content: "1";
+}
+.cell.open-2:after {
+    content: "2";
+}
+.cell.open-3:after {
+    content: "3";
+}
+.cell.open-4:after {
+    content: "4";
+}
+.cell.open-5:after {
+    content: "5";
+}
+.cell.open-6:after {
+    content: "6";
+}
+.cell.open-7:after {
+    content: "7";
+}
+.cell.open-8:after {
+    content: "8";
+}
+
+.cell.flagged {
+    background-color: #eee;
+    border: 3px outset #aaa;
+    width: 20px;
+    height: 20px;
+}
+.cell.flagged:after {
+    content: "F";
+}
+
+.cell.exploded {
+    background-color: #f00;
+    color: #ff0;
+}
