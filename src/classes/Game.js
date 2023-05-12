@@ -34,8 +34,14 @@ export default class Game {
         console.log('FIELD: ', this.field);
     }
 
+    /* Проверяет, что координаты (x, y) находятся внутри игрового поля */
+    valid(x, y) {
+        return x >= 0 && x < this.W && y >= 0 && y < this.H;
+    }
+
+    /* Возвращает 1, если в клетке (x, y) есть бомба, и 0, если её там нет или координаты вне игрового поля */
     check(x, y) {
-        if (x < 0 || x >= this.W || y < 0 || y >= this.H) return 0;
+        if (!this.valid(x, y)) return 0;
         else return this.field[x][y].hasBomb ? 1 : 0;
     }
 
