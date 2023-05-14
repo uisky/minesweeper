@@ -12,6 +12,7 @@ export default class Game {
         this.field = Array();
         this.state = 'start';
         this._cntMoves = 0;
+        this._cntFlags = 0;
         this.gameStart = undefined;
         this._gameDur = 0;
         this.ticker = undefined;
@@ -24,6 +25,16 @@ export default class Game {
 
     get cntMoves() {
         return this._cntMoves;
+    }
+
+    set cntFlags(val) {
+        console.log('cntFlags set', val);
+        this._cntFlags = val;
+        this.elCntFlags.innerText = String(this.cntFlags);
+    }
+
+    get cntFlags() {
+        return this._cntFlags;
     }
 
     set gameDur(val) {
@@ -117,6 +128,21 @@ export default class Game {
         this.elGameDur.className = 'counter counter-game-dur';
         this.elGameDur.innerText = String(this.cntMoves);
         parent.append(this.elGameDur);
+
+        this.elCntFlags = document.createElement('div');
+        this.elCntFlags.className = 'counter counter-flags';
+        this.elCntFlags.innerText = String(this.cntFlags);
+        parent.append(this.elCntFlags);
+    }
+
+    // Первый ход сделан
+    firstMove(x, y) {
+        this.putBombs(x, y);
+        this.gameStart = new Date();
+        this.gameDur = 0;
+        this.ticker = setInterval(this.tick.bind(this), 1000);
+        this.cntMoves = 1;
+        this.state = 'playing';
     }
 
     cellClick(e) {
@@ -125,13 +151,8 @@ export default class Game {
 
         // Если игра только началась, то расставляем бомбы
         if (this.state === 'start') {
-            this.putBombs(x, y);
-            this.state = 'playing';
-            this.gameStart = new Date();
-            this.gameDur = 0;
-            this.ticker = setInterval(this.tick.bind(this), 1000);
+            this.firstMove(x, y);
             cell.open();
-            this.cntMoves = 1;
         } else if (this.state === 'playing') {
             // Кликнули на закрытую ячейку
             if (cell.state === 'closed') {
@@ -154,18 +175,21 @@ export default class Game {
         let x = e.target.dataset.x, y = e.target.dataset.y, cell = this.field[x][y];
         console.log('CELL RIGHT CLICK: ', cell);
         if (this.state === 'start') {
-            this.putBombs(x, y);
-            this.state = 'playing';
+            this.firstMove();
             if (cell.state === 'closed') {
                 cell.state = 'flagged';
+                this.cntFlags++;
             } else if (cell.state == 'flagged') {
                 cell.state = 'closed';
+                this.cntFlags--;
             }
         } else if (this.state === 'playing') {
             if (cell.state === 'closed') {
                 cell.state = 'flagged';
+                this.cntFlags++;
             } else if (cell.state == 'flagged') {
                 cell.state = 'closed';
+                this.cntFlags--;
             }
         }
     }
