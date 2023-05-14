@@ -13,7 +13,8 @@ export default class Game {
         this.state = 'start';
         this._cntMoves = 0;
         this.gameStart = undefined;
-        this.gameDur = 0;
+        this._gameDur = 0;
+        this.ticker = undefined;
     }
 
     set cntMoves(val) {
@@ -24,6 +25,15 @@ export default class Game {
 
     get cntMoves() {
         return this._cntMoves;
+    }
+
+    set gameDur(val) {
+        this._gameDur = val;
+        this.elGameDur.innerText = String(this.gameDur);
+    }
+
+    get gameDur() {
+        return this._gameDur;
     }
 
     start() {
@@ -111,8 +121,12 @@ export default class Game {
         this.elCntMoves = document.createElement('div');
         this.elCntMoves.className = 'counter counter-moves';
         this.elCntMoves.innerText = String(this.cntMoves);
-
         parent.append(this.elCntMoves);
+
+        this.elGameDur = document.createElement('div');
+        this.elGameDur.className = 'counter counter-game-dur';
+        this.elGameDur.innerText = String(this.cntMoves);
+        parent.append(this.elGameDur);
     }
 
     cellClick(e) {
@@ -123,6 +137,9 @@ export default class Game {
         if (this.state === 'start') {
             this.putBombs(x, y);
             this.state = 'playing';
+            this.gameStart = new Date();
+            this.gameDur = 0;
+            this.ticker = setInterval(this.tick.bind(this), 1000);
             cell.open();
             this.cntMoves++;
         } else if (this.state === 'playing') {
@@ -132,6 +149,8 @@ export default class Game {
                 if (cell.hasBomb) {
                     // Попали на бомбу, проиграли
                     cell.state = 'exploded'
+                    this.state = 'lost';
+                    clearInterval(this.ticker);
                 } else {
                     // Открываем
                     cell.open();
@@ -139,7 +158,6 @@ export default class Game {
                 cell.setClass();
             }
         }
-
     }
 
     cellRightClick(e) {
@@ -152,5 +170,10 @@ export default class Game {
             cell.state = 'closed';
         }
         cell.setClass();
+    }
+
+    tick() {
+        console.log('tick', );
+        this.gameDur = Math.round((new Date() - this.gameStart) / 1000);
     }
 }

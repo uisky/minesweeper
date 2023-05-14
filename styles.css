@@ -70,3 +70,42 @@
     background-color: #f00;
     color: #ff0;
 }
+
+
+
+.counter {
+    width: 100px; height: 30px;
+    padding: 5px 5px 15px 5px;
+    background: #333; color: #9f9;
+    text-align: center;
+    font-size: 30px;
+    font-family: monospace;
+    position: relative;
+}
+.counter.counter-moves {
+
+}
+.counter.counter-moves:after {
+    content: "ходов";
+    position: absolute;
+    width: 100px;
+    padding: 1px 5px;
+    background: #444;
+    font-size: 11px;
+    display: block;
+    bottom: 0px; left: 0px;
+}
+
+.counter.counter-game-dur {
+
+}
+.counter.counter-game-dur:after {
+    content: "сек";
+    position: absolute;
+    width: 100px;
+    padding: 1px 5px;
+    background: #444;
+    font-size: 11px;
+    display: block;
+    bottom: 0px; left: 0px;
+}
