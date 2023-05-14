@@ -17,16 +17,16 @@ export default class Cell {
         if (this.bombsAround === 0) {
             // Если у ячейки нет бомб в соседях, то открываем соседние
             let x = this.x, y = this.y;
-            if(this.game.valid(x-1, y-1) && this.game.field[x-1][y-1].state === 'closed') this.game.field[x-1][y-1].open();
-            if(this.game.valid(x, y-1)   && this.game.field[x]  [y-1].state === 'closed') this.game.field[x]  [y-1].open();
-            if(this.game.valid(x+1, y-1) && this.game.field[x+1][y-1].state === 'closed') this.game.field[x+1][y-1].open();
+            if(this.game.valid(x-1, y-1)) this.game.field[x-1][y-1].open();
+            if(this.game.valid(x, y-1))   this.game.field[x]  [y-1].open();
+            if(this.game.valid(x+1, y-1)) this.game.field[x+1][y-1].open();
 
-            if(this.game.valid(x-1, y) && this.game.field[x-1][y].state === 'closed') this.game.field[x-1][y].open();
-            if(this.game.valid(x+1, y) && this.game.field[x+1][y].state === 'closed') this.game.field[x+1][y].open();
+            if(this.game.valid(x-1, y)) this.game.field[x-1][y].open();
+            if(this.game.valid(x+1, y)) this.game.field[x+1][y].open();
 
-            if(this.game.valid(x-1, y+1) && this.game.field[x-1][y+1].state === 'closed') this.game.field[x-1][y+1].open();
-            if(this.game.valid(x, y+1)   && this.game.field[x]  [y+1].state === 'closed') this.game.field[x]  [y+1].open();
-            if(this.game.valid(x+1, y+1) && this.game.field[x+1][y+1].state === 'closed') this.game.field[x+1][y+1].open();
+            if(this.game.valid(x-1, y+1)) this.game.field[x-1][y+1].open();
+            if(this.game.valid(x, y+1))   this.game.field[x]  [y+1].open();
+            if(this.game.valid(x+1, y+1)) this.game.field[x+1][y+1].open();
         }
     }
 
@@ -40,7 +40,7 @@ export default class Cell {
 
     setClass() {
         let classNames = ['cell'];
-        if (this.state == 'closed') {
+        if (this.state === 'closed') {
             classNames.push('closed');
         } else if (this.state === 'open') {
             classNames.push('open');

@@ -141,7 +141,7 @@ export default class Game {
             this.gameDur = 0;
             this.ticker = setInterval(this.tick.bind(this), 1000);
             cell.open();
-            this.cntMoves++;
+            this.cntMoves = 1;
         } else if (this.state === 'playing') {
             // Кликнули на закрытую ячейку
             if (cell.state === 'closed') {
@@ -163,17 +163,27 @@ export default class Game {
     cellRightClick(e) {
         e.preventDefault();
         let x = e.target.dataset.x, y = e.target.dataset.y, cell = this.field[x][y];
-        console.log('CELL CLICK: ', cell);
-        if (cell.state === 'closed') {
-            cell.state = 'flagged';
-        } else if (cell.state == 'flagged') {
-            cell.state = 'closed';
+        console.log('CELL RIGHT CLICK: ', cell);
+        if (this.state === 'start') {
+            this.putBombs(x, y);
+            this.state = 'playing';
+            if (cell.state === 'closed') {
+                cell.state = 'flagged';
+            } else if (cell.state == 'flagged') {
+                cell.state = 'closed';
+            }
+        } else if (this.state === 'playing') {
+            if (cell.state === 'closed') {
+                cell.state = 'flagged';
+            } else if (cell.state == 'flagged') {
+                cell.state = 'closed';
+            }
         }
+
         cell.setClass();
     }
 
     tick() {
-        console.log('tick', );
         this.gameDur = Math.round((new Date() - this.gameStart) / 1000);
     }
 }
