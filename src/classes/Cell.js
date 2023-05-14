@@ -4,9 +4,18 @@ export default class Cell {
         this.x = x;
         this.y = y;
         this.hasBomb = false;
-        this.state = 'closed';
+        this._state = 'closed';
         this.el = undefined;
         this.bombsAround = 0;
+    }
+
+    set state(val) {
+        this._state = val;
+        this.setClass();
+    }
+
+    get state() {
+        return this._state;
     }
 
     // Открывает ячейку
