@@ -18,7 +18,6 @@ export default class Game {
     }
 
     set cntMoves(val) {
-        console.log('set cntMoves(%d)', val);
         this._cntMoves = val;
         this.elCntMoves.innerText = String(this.cntMoves);
     }
@@ -76,19 +75,10 @@ export default class Game {
             if (!this.field[x][y].hasBomb && x !== exceptX && y !== exceptY) {
                 this.field[x][y].hasBomb = true;
                 cnt--;
+                this.field[x][y].neighbours().forEach((el) => {el.bombsAround++})
             }
         }
 
-        // Считаем соседей
-        for (let x = 0; x < this.W; x++) {
-            for (let y = 0; y < this.H; y++) {
-                let cnt = this.check(x - 1, y - 1) + this.check(x, y - 1) + this.check(x + 1, y - 1) +
-                          this.check(x - 1, y) + this.check(x + 1, y) +
-                          this.check(x - 1, y + 1) + this.check(x, y + 1) + this.check(x + 1, y + 1);
-                this.field[x][y].bombsAround = cnt;
-            }
-        }
-        
         console.log('FIELD w/bombs: ', this.field);
     }
 
@@ -155,7 +145,6 @@ export default class Game {
                     // Открываем
                     cell.open();
                 }
-                cell.setClass();
             }
         }
     }
@@ -179,8 +168,6 @@ export default class Game {
                 cell.state = 'closed';
             }
         }
-
-        cell.setClass();
     }
 
     tick() {

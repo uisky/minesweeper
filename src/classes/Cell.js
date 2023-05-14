@@ -18,6 +18,24 @@ export default class Cell {
         return this._state;
     }
 
+    // Возвращает массив своих соседей
+    neighbours() {
+        let neighbours = [];
+        let x = this.x, y = this.y;
+        if(this.game.valid(x-1, y-1)) neighbours.push(this.game.field[x-1][y-1]);
+        if(this.game.valid(x, y-1))   neighbours.push(this.game.field[x]  [y-1]);
+        if(this.game.valid(x+1, y-1)) neighbours.push(this.game.field[x+1][y-1]);
+
+        if(this.game.valid(x-1, y)) neighbours.push(this.game.field[x-1][y]);
+        if(this.game.valid(x+1, y)) neighbours.push(this.game.field[x+1][y]);
+
+        if(this.game.valid(x-1, y+1)) neighbours.push(this.game.field[x-1][y+1]);
+        if(this.game.valid(x, y+1))   neighbours.push(this.game.field[x]  [y+1]);
+        if(this.game.valid(x+1, y+1)) neighbours.push(this.game.field[x+1][y+1]);
+
+        return neighbours;
+    }
+
     // Открывает ячейку
     open() {
         if (this.state != 'closed') return;
@@ -25,17 +43,7 @@ export default class Cell {
         this.setClass();
         if (this.bombsAround === 0) {
             // Если у ячейки нет бомб в соседях, то открываем соседние
-            let x = this.x, y = this.y;
-            if(this.game.valid(x-1, y-1)) this.game.field[x-1][y-1].open();
-            if(this.game.valid(x, y-1))   this.game.field[x]  [y-1].open();
-            if(this.game.valid(x+1, y-1)) this.game.field[x+1][y-1].open();
-
-            if(this.game.valid(x-1, y)) this.game.field[x-1][y].open();
-            if(this.game.valid(x+1, y)) this.game.field[x+1][y].open();
-
-            if(this.game.valid(x-1, y+1)) this.game.field[x-1][y+1].open();
-            if(this.game.valid(x, y+1))   this.game.field[x]  [y+1].open();
-            if(this.game.valid(x+1, y+1)) this.game.field[x+1][y+1].open();
+            this.neighbours().forEach((el) => el.open());
         }
     }
 
