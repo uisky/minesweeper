@@ -1,6 +1,6 @@
 import Game from './classes/Game.js';
 
 window.onload = () => {
-    const game = new Game(10, 10, 5);
+    const game = new Game(10, 10, 3);
     game.start();
 }

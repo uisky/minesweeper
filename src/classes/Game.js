@@ -1,4 +1,5 @@
 import Cell from './Cell.js';
+import Highscores from './Highscores.js'
 
 export default class Game {
     constructor(w, h, cntBombs) {
@@ -16,6 +17,8 @@ export default class Game {
         this.gameStart = undefined;
         this._gameDur = 0;
         this.ticker = undefined;
+        this.highscores = new Highscores();
+        console.log(this.highscores.asArray());
     }
 
     set cntMoves(val) {
@@ -129,6 +132,12 @@ export default class Game {
         this.elCntFlags.className = 'counter counter-flags';
         parent.append(this.elCntFlags);
         this.cntFlags = this.cntFlags;
+
+        this.elHighscores = document.createElement('div');
+        parent.append(this.elHighscores);
+
+        this.highscores.domContainer = this.elHighscores;
+        this.highscores.render();
     }
 
     // Первый ход сделан
@@ -214,7 +223,9 @@ export default class Game {
     win() {
        clearInterval(this.ticker);
        setTimeout(() => {
-            alert('Владимир Владимирович, поздравляем с победой на выборах!');
+            let name = prompt('Владимир Владимирович, как вас зовут?');
+            this.highscores.record(name, this.gameDur, this.cntMoves);
+            console.log(this.highscores.asArray());
             this.restart();
         }, 100);
     }
