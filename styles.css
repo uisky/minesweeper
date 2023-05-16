@@ -109,3 +109,17 @@
     display: block;
     bottom: 0px; left: 0px;
 }
+
+.counter.counter-flags {
+
+}
+.counter.counter-flags:after {
+    content: "флагов";
+    position: absolute;
+    width: 100px;
+    padding: 1px 5px;
+    background: #444;
+    font-size: 11px;
+    display: block;
+    bottom: 0px; left: 0px;
+}

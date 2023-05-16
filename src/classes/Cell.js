@@ -40,7 +40,6 @@ export default class Cell {
     open() {
         if (this.state != 'closed') return;
         this.state = 'open';
-        this.setClass();
         if (this.bombsAround === 0) {
             // Если у ячейки нет бомб в соседях, то открываем соседние
             this.neighbours().forEach((el) => el.open());

@@ -28,7 +28,6 @@ export default class Game {
     }
 
     set cntFlags(val) {
-        console.log('cntFlags set', val);
         this._cntFlags = val;
         this.elCntFlags.innerText = String(this.cntFlags);
     }
@@ -52,6 +51,11 @@ export default class Game {
         this.render();
     }
 
+    restart() {
+        this.initField();
+        this.state = 'start';
+    }
+
     initField() {
         console.log('Game.initField()');
         this.field = Array();
@@ -69,12 +73,6 @@ export default class Game {
         return x >= 0 && x < this.W && y >= 0 && y < this.H;
     }
 
-    /* Возвращает 1, если в клетке (x, y) есть бомба, и 0, если её там нет или координаты вне игрового поля */
-    check(x, y) {
-        if (!this.valid(x, y)) return 0;
-        else return this.field[x][y].hasBomb ? 1 : 0;
-    }
-
     putBombs(exceptX, exceptY) {
         console.log('Game.putBombs(%d, %d)', exceptX, exceptY);
         // Ставим бомбы
@@ -89,8 +87,6 @@ export default class Game {
                 this.field[x][y].neighbours().forEach((el) => {el.bombsAround++})
             }
         }
-
-        console.log('FIELD w/bombs: ', this.field);
     }
 
     render() {
@@ -121,18 +117,18 @@ export default class Game {
     renderInfo(parent) {
         this.elCntMoves = document.createElement('div');
         this.elCntMoves.className = 'counter counter-moves';
-        this.elCntMoves.innerText = String(this.cntMoves);
         parent.append(this.elCntMoves);
+        this.cntMoves = this.cntMoves;
 
         this.elGameDur = document.createElement('div');
         this.elGameDur.className = 'counter counter-game-dur';
-        this.elGameDur.innerText = String(this.cntMoves);
         parent.append(this.elGameDur);
+        this.gameDur = this.gameDur;
 
         this.elCntFlags = document.createElement('div');
         this.elCntFlags.className = 'counter counter-flags';
-        this.elCntFlags.innerText = String(this.cntFlags);
         parent.append(this.elCntFlags);
+        this.cntFlags = this.cntFlags;
     }
 
     // Первый ход сделан
@@ -141,8 +137,18 @@ export default class Game {
         this.gameStart = new Date();
         this.gameDur = 0;
         this.ticker = setInterval(this.tick.bind(this), 1000);
-        this.cntMoves = 1;
         this.state = 'playing';
+    }
+
+    // Проверяет, не выиграли ли мы
+    checkWin() {
+        let cntNotOpened = 0;
+        for (let x = 0; x < this.W; x++) {
+            for (let y = 0; y < this.H; y++) {
+                if (this.field[x][y].state !== 'open') cntNotOpened++;
+            }
+        }
+        return cntNotOpened === this.cntBombs;
     }
 
     cellClick(e) {
@@ -152,7 +158,11 @@ export default class Game {
         // Если игра только началась, то расставляем бомбы
         if (this.state === 'start') {
             this.firstMove(x, y);
+            this.cntMoves = 1;
             cell.open();
+            if (this.checkWin()) {
+                this.win();
+            }
         } else if (this.state === 'playing') {
             // Кликнули на закрытую ячейку
             if (cell.state === 'closed') {
@@ -165,6 +175,9 @@ export default class Game {
                 } else {
                     // Открываем
                     cell.open();
+                    if (this.checkWin()) {
+                        this.win();
+                    }
                 }
             }
         }
@@ -196,5 +209,13 @@ export default class Game {
 
     tick() {
         this.gameDur = Math.round((new Date() - this.gameStart) / 1000);
+    }
+
+    win() {
+       clearInterval(this.ticker);
+       setTimeout(() => {
+            alert('Владимир Владимирович, поздравляем с победой на выборах!');
+            this.restart();
+        }, 100);
     }
 }
