@@ -2,23 +2,31 @@ import Cell from './Cell.js';
 import Highscores from './Highscores.js'
 
 export default class Game {
-    constructor(w, h, cntBombs) {
+    constructor() {
         console.log('Game.constructor()');
-        if (w * h < cntBombs) {
-            throw new Error(`На поле ${w} x ${h} клеток не может быть ${cntBombs} бомб, ёбнутая вы по ебальнику ебанашка!`);
-        }
-        this.W = w;
-        this.H = h;
-        this.cntBombs = cntBombs;
+        this.dom = {};
+        this.W = null;
+        this.H = null;
+        this.cntBombs = null;
         this.field = Array();
-        this.state = 'start';
+        this._state = 'start';
         this._cntMoves = 0;
         this._cntFlags = 0;
         this.gameStart = undefined;
         this._gameDur = 0;
         this.ticker = undefined;
         this.highscores = new Highscores();
-        console.log(this.highscores.asArray());
+
+        this.render();
+    }
+
+    set state(val) {
+        this._state = val;
+        document.body.className = this._state;
+    }
+
+    get state() {
+        return this._state;
     }
 
     set cntMoves(val) {
@@ -48,14 +56,32 @@ export default class Game {
         return this._gameDur;
     }
 
-    start() {
-        console.log('Game.start()');
-        this.initField();
-        this.render();
+    /* Проверяет, что координаты (x, y) находятся внутри игрового поля */
+    valid(x, y) {
+        return x >= 0 && x < this.W && y >= 0 && y < this.H;
     }
 
-    restart() {
+    // Проверяет, не выиграли ли мы
+    checkWin() {
+        let cntNotOpened = 0;
+        for (let x = 0; x < this.W; x++) {
+            for (let y = 0; y < this.H; y++) {
+                if (this.field[x][y].state !== 'open') cntNotOpened++;
+            }
+        }
+        return cntNotOpened === this.cntBombs;
+    }
+
+    start(w, h, cntBombs) {
+        console.log('Game.start(%d, %d, %d)', w, h, cntBombs);
+        this.W = w;
+        this.H = h;
+        this.cntBombs = cntBombs;
+        this.cntMoves = 0;
+        this.cntFlags = 0;
+        this.gameDur = 0;
         this.initField();
+        this.renderField();
         this.state = 'start';
     }
 
@@ -69,11 +95,6 @@ export default class Game {
             }
         }
         console.log('FIELD: ', this.field);
-    }
-
-    /* Проверяет, что координаты (x, y) находятся внутри игрового поля */
-    valid(x, y) {
-        return x >= 0 && x < this.W && y >= 0 && y < this.H;
     }
 
     putBombs(exceptX, exceptY) {
@@ -92,16 +113,26 @@ export default class Game {
         }
     }
 
+    // Создаёт DOM для игры
     render() {
         console.log('Game.render()');
-        this.renderField(document.body);
-        this.renderInfo(document.body);
-    }
 
-    renderField(parent) {
         this.elField = document.createElement('div');
         this.elField.classList.add('field');
+        this.elField.innerText = 'Game not started yet';
+        document.body.append(this.elField);
 
+        this.renderInfo(document.body);
+        this.renderNewGameModal(document.body);
+    }
+
+    // Очищает this.elField и наполняет его ячейками
+    renderField() {
+        console.log('Game.renderField()');
+
+        this.elField.innerHTML = '';
+        this.elField.style.width = 26 * this.W + 'px';
+        this.elField.style.height = 26 * this.H + 'px';
         for (let y = 0; y < this.H; y++) {
             let elRow = document.createElement('div');
             elRow.classList.add('row');
@@ -113,11 +144,11 @@ export default class Game {
             }
             this.elField.append(elRow);
         }
-
-        parent.append(this.elField);
     }
 
     renderInfo(parent) {
+        let modal, tmp;
+
         this.elCntMoves = document.createElement('div');
         this.elCntMoves.className = 'counter counter-moves';
         parent.append(this.elCntMoves);
@@ -135,9 +166,79 @@ export default class Game {
 
         this.elHighscores = document.createElement('div');
         parent.append(this.elHighscores);
-
         this.highscores.domContainer = this.elHighscores;
         this.highscores.render();
+
+        // Кнопка новой игры
+        tmp = document.createElement('button');
+        tmp.type = 'button';
+        tmp.innerText = 'New game';
+        tmp.onclick = this.showNewGameModal.bind(this);
+        parent.append(tmp);
+    }
+
+    renderNewGameModal(parent) {
+        let tmp;
+
+        // Модалка новой игры
+        this.modalNewGame = document.createElement('div');
+        this.modalNewGame.classList = 'modal new-game';
+
+        tmp = document.createElement('h1');
+        tmp.innerText = 'New game';
+        this.modalNewGame.append(tmp);
+
+        this.elInputWidth = document.createElement('input');
+        this.elInputWidth.type = 'text';
+        this.elInputWidth.placeholder = 'Width';
+        this.modalNewGame.append(this.elInputWidth);
+        this.elInputHeight = document.createElement('input');
+        this.elInputHeight.type = 'text';
+        this.elInputHeight.placeholder = 'height';
+        this.modalNewGame.append(this.elInputHeight);
+        this.elCntBombs = document.createElement('input');
+        this.elCntBombs.type = 'text';
+        this.elCntBombs.placeholder = 'bombs';
+        this.modalNewGame.append(this.elCntBombs);
+
+        tmp = document.createElement('button');
+        tmp.type = 'button';
+        tmp.innerText = 'Start';
+        tmp.onclick = this.newGame.bind(this);
+        this.modalNewGame.append(tmp);
+
+        tmp = document.createElement('button');
+        tmp.type = 'button';
+        tmp.innerText = 'Cancel';
+        tmp.onclick = this.hideNewGameModal.bind(this);
+        this.modalNewGame.append(tmp);
+
+        parent.append(this.modalNewGame);
+    }
+
+    showNewGameModal() {
+        this.elInputHeight.value = this.H;
+        this.elInputWidth.value = this.W;
+        this.elCntBombs.value = this.cntBombs;
+        this.modalNewGame.style.display = 'block';
+    }
+
+    hideNewGameModal() {
+        this.modalNewGame.style.display = 'none';
+    }
+
+    newGame() {
+        let w = parseInt(this.elInputWidth.value),
+            h = parseInt(this.elInputHeight.value),
+            cntBombs = parseInt(this.elCntBombs.value);
+
+        if (w * h < cntBombs - 1) {
+            alert(`На поле ${w} x ${h} клеток не может быть ${cntBombs} бомб, ёбнутая вы по ебальнику ебанашка!`);
+            return;
+        }
+
+        this.hideNewGameModal();
+        this.start(w, h, cntBombs);
     }
 
     // Первый ход сделан
@@ -147,17 +248,6 @@ export default class Game {
         this.gameDur = 0;
         this.ticker = setInterval(this.tick.bind(this), 1000);
         this.state = 'playing';
-    }
-
-    // Проверяет, не выиграли ли мы
-    checkWin() {
-        let cntNotOpened = 0;
-        for (let x = 0; x < this.W; x++) {
-            for (let y = 0; y < this.H; y++) {
-                if (this.field[x][y].state !== 'open') cntNotOpened++;
-            }
-        }
-        return cntNotOpened === this.cntBombs;
     }
 
     cellClick(e) {
@@ -223,10 +313,10 @@ export default class Game {
     win() {
        clearInterval(this.ticker);
        setTimeout(() => {
+            this.state = 'won';
             let name = prompt('Владимир Владимирович, как вас зовут?');
             this.highscores.record(name, this.gameDur, this.cntMoves);
-            console.log(this.highscores.asArray());
-            this.restart();
+            this.showNewGameModal();
         }, 100);
     }
 }
